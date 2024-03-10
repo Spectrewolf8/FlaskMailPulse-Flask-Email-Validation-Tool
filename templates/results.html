@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Validator Results</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
+      .main-body {
+        font-family: "Comfortaa", sans-serif;
+        background-color: #78bcc4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background-color: #f7f8f3;
+        position: absolute;
+        width: 100%;
+        top: 5%;
+        border-radius: 10px;
+        margin-left: 10%;
+        margin-right: 10%;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-body">
+      <div class="container">
+        <h1 class="mt-5">Email Validator Results</h1>
+        <div id="validationResults" class="mt-4">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Email</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <!-- Model row -->
+              <tr>
+                <td class="email-address">model@example.com</td>
+                <td class="email-status">Valid</td>
+              </tr>
+              <!-- More rows will be added here by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <!-- scripts -->
+    <script id="emailsInsertionScript">
+      var resultsBody = document.getElementById("resultsBody");
+
+      // Assuming email and status are variables holding the email and its validation status
+      var row = resultsBody.insertRow();
+      var emailCell = row.insertCell();
+      var statusCell = row.insertCell();
+
+      emailCell.textContent = email;
+      statusCell.textContent = status;
+    </script>
+  </body>
+</html>

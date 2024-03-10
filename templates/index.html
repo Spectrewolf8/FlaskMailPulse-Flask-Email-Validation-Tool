@@ -161,17 +161,28 @@
         method: "POST",
         body: formData,
       })
-        .then((response) => {
-          if (response.ok) {
-            window.alert("Form data has been sent to the server");
-            event.target.reset();
-          } else {
-            window.alert("An error occurred while sending the form data to the server");
-          }
+        .then((response) => response.text())
+        .then((html) => {
+          document.documentElement.innerHTML = html;
         })
         .catch((error) => {
           window.alert("An error occurred: " + error);
         });
+      //   fetch("/validate-email", {
+      //     method: "POST",
+      //     body: formData,
+      //   })
+      //     .then((response) => {
+      //       if (response.ok) {
+      //         window.alert("Form data has been sent to the server");
+      //         event.target.reset();
+      //       } else {
+      //         window.alert("An error occurred while sending the form data to the server");
+      //       }
+      //     })
+      //     .catch((error) => {
+      //       window.alert("An error occurred: " + error);
+      //     });
     }
   </script>
   <script id="modeSwitchScript">

@@ -4,73 +4,85 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Email Validator Results</title>
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
+      body {
+        margin: 0;
+        background-color: #78bcc4;
+        padding-bottom: 10%;
+      }
       .main-body {
         font-family: "Comfortaa", sans-serif;
-        background-color: #78bcc4;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        width: 100%;
+        min-height: 100vh;
         margin: 0;
+        position: relative;
       }
       .container {
         background-color: #f7f8f3;
         position: absolute;
-        width: 100%;
+        width: 80%;
         top: 5%;
         border-radius: 10px;
         margin-left: 10%;
         margin-right: 10%;
+        margin-bottom: 10%;
+
         padding: 20px;
+      }
+      h1 {
+        margin-top: 1em;
+      }
+      table {
+        width: 100%;
+        margin-top: 1em;
+        border-collapse: collapse;
+        border-radius: 10px;
+      }
+      th {
+        text-align: left;
+        /* border: 1px solid #000; */
+        padding: 0.5em;
+        border-top: 2px solid #000;
+        border-bottom: 2px solid #000;
+      }
+      td {
+        border: none;
+        padding: 0.5em;
       }
     </style>
   </head>
   <body>
     <div class="main-body">
       <div class="container">
-        <h1 class="mt-5">Email Validator Results</h1>
-        <div id="validationResults" class="mt-4">
-          <table class="table">
+        <h1>Email Validator Results</h1>
+        <div id="validationResults">
+          <table>
             <thead>
               <tr>
-                <th scope="col">Email</th>
-                <th scope="col">Status</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Message</th>
               </tr>
             </thead>
             <tbody id="resultsBody">
               <!-- Model row -->
+              {% for verification_result in verification_results %}
               <tr>
-                <td class="email-address">model@example.com</td>
-                <td class="email-status">Valid</td>
+                <td class="email-address">{{ verification_result["email"] }}</td>
+                <td class="email-status">{{ verification_result["status"] }}</td>
+                <td class="email-message">{{ verification_result["message"] }}</td>
               </tr>
+              {% endfor %}
               <!-- More rows will be added here by JavaScript -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
-    <!-- Bootstrap JS and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <!-- scripts -->
-    <script id="emailsInsertionScript">
-      var resultsBody = document.getElementById("resultsBody");
-
-      // Assuming email and status are variables holding the email and its validation status
-      var row = resultsBody.insertRow();
-      var emailCell = row.insertCell();
-      var statusCell = row.insertCell();
-
-      emailCell.textContent = email;
-      statusCell.textContent = status;
-    </script>
+    <br />
   </body>
 </html>

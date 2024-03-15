@@ -26,6 +26,13 @@
         margin-right: 20%;
         padding: 20px;
       }
+
+      #statusBar {
+        background-color: #ffd900;
+        border-radius: 10px;
+        margin-top: 15px;
+        padding: 20px;
+      }
       .custom-file-input::-webkit-file-upload-button {
         background-color: #002c3e;
         color: white;
@@ -34,11 +41,7 @@
         padding: 5px 10px;
         cursor: pointer;
       }
-      /* .form-control-file {
-        background-color: #ff3b4e;
-        border-radius: 5px;
-        border: none;
-      } */
+
       #fileInfo {
         width: 100%;
         height: 30%;
@@ -97,6 +100,7 @@
           </div>
           <button type="submit" class="btn btn-primary">Validate</button>
           <button type="reset" class="btn btn-secondary">Cancel</button>
+          <div id="statusBar" style="display: none"></div>
         </form>
       </div>
     </div>
@@ -157,17 +161,25 @@
       } else {
         formData.append("checkDeliverability", false);
       }
+      document.getElementById("statusBar").style.display = "block";
+      document.getElementById("statusBar").textContent = "Processing request, please wait...";
+
       fetch("/validate-email", {
         method: "POST",
         body: formData,
       })
-        .then((response) => response.text())
+        .then((response) => {
+          return response.text();
+        })
         .then((html) => {
           document.documentElement.innerHTML = html;
         })
         .catch((error) => {
-          window.alert("An error occurred: " + error);
+          // Update the status bar only when an error occurs
+          document.getElementById("statusBar").style.display = "block";
+          document.getElementById("statusBar").textContent = "An error occurred: " + error;
         });
+
       //   fetch("/validate-email", {
       //     method: "POST",
       //     body: formData,

@@ -26,6 +26,7 @@ def validate_emails():
         elif request.form["payload_type"] == "email":
             email = request.form["email"]
             check_deliverablility = request.form["checkDeliverability"]
+            print("check deliverability:", check_deliverablility)
             evaluation_result = evaluate_email(email, check_deliverablility)
             context["verification_results"].append(evaluation_result)
 
@@ -53,10 +54,11 @@ def evaluate_email(email, checkDeliverability=True):
         # login pages).
         status["email"] = email
         emailinfo = validate_email(email, check_deliverability=checkDeliverability)
-        if checkDeliverability:
+        print("Deilverability:", checkDeliverability)
+        if checkDeliverability in "true":
             status["status"] = "Valid/deliverable"
             status["message"] = "Email is valid and deliverable"
-        else:
+        elif checkDeliverability in "false":
             status["status"] = "Valid"
             status["message"] = "Email is valid"
 

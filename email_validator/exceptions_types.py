@@ -70,7 +70,7 @@ class ValidatedEmail:
     """
     This attribute represents the validity of the email. It is set to True if the email is valid, and False otherwise.
     """
-    is_existant: bool
+    is_existent: bool
     """
     This attribute represents whether the email exists or not. It is set to True if the email is valid and exists, and False otherwise.
     """

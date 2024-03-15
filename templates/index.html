@@ -185,6 +185,18 @@
           let emailInput = document.getElementById("emailInput");
           formData.append("payload_type", "email");
           formData.append("email", emailInput.value);
+
+          // Calculate estimated time remaining
+          var numEmails = emails.length;
+          var minTime = 5;
+          var maxTime = 15;
+
+          document.getElementById("statusBar").textContent =
+            "ETA: " +
+            secondsToHms(maxTime) +
+            "±" +
+            secondsToHms(minTime) +
+            ". Processing request, please wait...";
         }
         if (deliverabilitySwitchState) {
           formData.append("checkDeliverability", true);
@@ -222,7 +234,7 @@
         var m = Math.floor((d % 3600) / 60);
         var s = Math.floor((d % 3600) % 60);
 
-        var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours ") : "";
+        var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours") : "";
         var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes ") : "";
         var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
         return hDisplay + mDisplay + sDisplay;

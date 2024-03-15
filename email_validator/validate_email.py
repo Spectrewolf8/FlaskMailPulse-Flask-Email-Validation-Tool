@@ -188,6 +188,6 @@ def validate_email(
 
         email_existance_validator = EmailExistenceValidator()
         ret.existance_status = email_existance_validator.validate_email(ret.normalized)
-        ret.is_existant = ret.existance_status["isValid"]
+        ret.is_existent = ret.existance_status["isValid"]
 
     return ret

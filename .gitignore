@@ -20,3 +20,5 @@ env27/
 .idea/
 .coverage
 htmlcov/
+testv2.py
+testv3.py

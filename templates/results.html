@@ -4,14 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Email Validator Results</title>
+    <!-- Custom CSS -->
     <style>
+      /* Importing Google Font */
       @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
+
+      /* Body Styling */
       body {
         margin: 0;
         background-color: #78bcc4;
         padding-bottom: 10%;
         overflow: hidden;
       }
+
+      /* Main Body Styling */
       .main-body {
         font-family: "Comfortaa", sans-serif;
         display: flex;
@@ -19,12 +25,13 @@
         align-items: center;
         width: 100%;
         min-height: 100vh;
-        margin: 0;
         position: relative;
-        margin-bottom: 50px; /* Adds a gap below the container */
         overflow-y: auto; /* Makes the container scrollable */
         height: 90vh; /* Sets a maximum height for the container */
+        margin-bottom: 50px; /* Adds a gap below the container */
       }
+
+      /* Container Styling */
       .container {
         background-color: #f7f8f3;
         position: absolute;
@@ -41,6 +48,7 @@
         scrollbar-color: #888 #f7f8f3;
       }
 
+      /* Scrollbar Styling */
       .container::-webkit-scrollbar {
         width: 12px;
       }
@@ -54,26 +62,13 @@
         border-radius: 20px;
         border: 3px solid #f7f8f3;
       }
+
+      /* Heading Styling */
       h1 {
         margin-top: 1em;
       }
-      table {
-        width: 100%;
-        margin-top: 15px;
-        border-collapse: collapse;
-        border-radius: 10px;
-      }
-      th {
-        text-align: left;
-        /* border: 1px solid #000; */
-        padding: 0.5em;
-        border-top: 2px solid #000;
-        border-bottom: 2px solid #000;
-      }
-      td {
-        border: none;
-        padding: 0.5em;
-      }
+
+      /* Button Styling */
       .back-button {
         margin-top: 1%;
         margin-left: 1%;
@@ -107,9 +102,36 @@
       .back-button:active {
         box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
       }
+
       .back-button span {
         font-size: 1.5rem;
         margin-right: 2px;
+      }
+
+      /* Table Styling */
+      table {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+        border-radius: 10px;
+      }
+
+      th {
+        text-align: left;
+        padding: 0.5em;
+        border-top: 2px solid #000;
+        border-bottom: 2px solid #000;
+      }
+
+      td {
+        border: none;
+        padding: 0.5em;
+        border-radius: 5px;
+      }
+
+      /* Server Message Styling */
+      .server-message {
+        transition: background-color 0.3s ease;
       }
     </style>
   </head>
@@ -124,15 +146,26 @@
               <tr>
                 <th>Email</th>
                 <th>Status</th>
-                <th>Message</th>
+                <th>Response Code</th>
+                <th>Server Message</th>
               </tr>
             </thead>
             <tbody id="resultsBody">
-              {% for verification_result in verification_results %}
+              {% for status in verification_results %}
               <tr>
-                <td class="email-address">{{ verification_result["email"] }}</td>
-                <td class="email-status">{{ verification_result["status"] }}</td>
-                <td class="email-message">{{ verification_result["message"] }}</td>
+                <td class="email-address">{{ status["email"] }}</td>
+                <td class="email-status">{{ status["status"] }}</td>
+                <td class="response-code">{{ status["response_code"] }}</td>
+                <td
+                  class="server-message"
+                  style="background-color:
+                        {% if status['color_code'] == 'red' %}#FFCCCC
+                        {% elif status['color_code'] == 'green' %}#CCFFCC
+                        {% elif status['color_code'] == 'yellow' %}#FFFFCC
+                        {% endif %}"
+                >
+                  {{ status["server_message"] }}
+                </td>
               </tr>
               {% endfor %}
             </tbody>

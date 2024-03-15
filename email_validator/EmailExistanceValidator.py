@@ -93,7 +93,6 @@ class EmailExistenceValidator:
                 # Handle SMTP connection errors
                 self.status["response_status"] = str(e)
                 self.status["color_code"] = "red"  # Connection error, set color to red
-                # return self.status
 
         # Check for address existence using email address enumeration
         try:

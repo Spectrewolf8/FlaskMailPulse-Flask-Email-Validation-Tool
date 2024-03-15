@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request
 from email_validator import validate_email, EmailNotValidError
-
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -8,29 +7,47 @@ app.config["DEBUG"] = True
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    """
+    Renders the home page.
+
+    Returns:
+        HTML template for the home page.
+    """
     return render_template("index.html")
 
 
-@app.route("/validate-email", methods=["GET", "POST"])
+@app.route("/validate-email", methods=["POST"])
 def validate_emails():
+    """
+    Validates email addresses submitted via form.
+
+    Returns:
+        HTML template displaying validation results.
+    """
     if request.method == "POST":
         context = {"verification_results": []}
-        if request.form["payload_type"] == "emails":
-            # print(request.form["emails"].split(","))
-            emails = request.form["emails"].split(",")
-            check_deliverablility = request.form["checkDeliverability"]
+        payload_type = request.form.get("payload_type")
+
+        if payload_type == "emails":
+            emails = request.form.get("emails").split(",")
+            check_deliverability = request.form.get("checkDeliverability")
+            check_existence = request.form.get("checkExistance")
+
             for email in emails:
-                evaluation_result = evaluate_email(email, check_deliverablility)
+                evaluation_result = evaluate_email(
+                    email, check_deliverability, check_existence
+                )
                 context["verification_results"].append(evaluation_result)
 
-        elif request.form["payload_type"] == "email":
-            email = request.form["email"]
-            check_deliverablility = request.form["checkDeliverability"]
-            print("check deliverability:", check_deliverablility)
-            evaluation_result = evaluate_email(email, check_deliverablility)
+        elif payload_type == "email":
+            email = request.form.get("email")
+            check_deliverability = request.form.get("checkDeliverability")
+            check_existence = request.form.get("checkExistance")
+            evaluation_result = evaluate_email(
+                email, check_deliverability, check_existence
+            )
             context["verification_results"].append(evaluation_result)
 
-        print(context)
         return render_template(
             "results.html", verification_results=context["verification_results"]
         )
@@ -38,43 +55,58 @@ def validate_emails():
     return render_template("index.html")
 
 
-# to be discarded later
-@app.route("/validation-results", methods=["GET", "POST"])
-def display_results():
-    print(request.form)
-    return render_template("results.html")
-
-
-def evaluate_email(email, checkDeliverability=True):
-    status = {"email": "", "status": "", "message": ""}
-    try:
-
-        # Check that the email address is valid. Turn on check_deliverability
-        # for first-time validations like on account creation pages (but not
-        # login pages).
-        status["email"] = email
-        emailinfo = validate_email(email, check_deliverability=checkDeliverability)
-        print("Deilverability:", checkDeliverability)
-        if checkDeliverability in "true":
-            status["status"] = "Valid/deliverable"
-            status["message"] = "Email is valid and deliverable"
-        elif checkDeliverability in "false":
-            status["status"] = "Valid"
-            status["message"] = "Email is valid"
-
-    except EmailNotValidError as e:
-
-        # The exception message is human-readable explanation of why it's
-        # not a valid (or deliverable) email address.
-        print(str(e))
-        status["status"] = "Invalid"
-        status["message"] = str(e)
-    return status
-
-
 @app.route("/favicon.ico")
 def favicon():
+    """
+    Route for favicon.
+
+    Returns:
+        Empty response with status code 204.
+    """
     return "", 204
+
+
+def evaluate_email(email, check_deliverability, check_existence):
+    """
+    Evaluates the validity and existence of an email address.
+
+    Args:
+        email: Email address to be evaluated.
+        check_deliverability: Flag to indicate whether to check deliverability.
+        check_existence: Flag to indicate whether to check existence.
+
+    Returns:
+        Dictionary containing evaluation results.
+    """
+    status = {
+        "email": email,
+        "status": "",
+        "response_code": 0,
+        "server_message": "None",
+        "color_code": "red",
+    }
+    try:
+        email_info = validate_email(email, check_deliverability=check_deliverability)
+
+        if email_info.is_valid:
+            if email_info.is_existent:
+                status["status"] = "Valid and Existent"
+            else:
+                status["status"] = "Valid but Nonexistent"
+        else:
+            status["status"] = "Invalid"
+
+        status["server_message"] = email_info.existance_status.get(
+            "smtp_server_message", "None"
+        )
+        status["color_code"] = email_info.existance_status.get("color_code", "red")
+        status["response_code"] = email_info.existance_status.get("response_code", 0)
+
+    except EmailNotValidError as e:
+        status["status"] = "Invalid"
+        status["server_message"] = str(e)
+
+    return status
 
 
 if __name__ == "__main__":

@@ -9,14 +9,19 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
+    <!-- Custom CSS -->
     <style>
+      /* Importing Google Font */
       @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
-      .main-body {
+
+      /* Body Styling */
+      body {
         font-family: "Comfortaa", sans-serif;
         background-color: #78bcc4;
         height: 100vh;
       }
+
+      /* Container Styling */
       .container {
         background-color: #f7f8f3;
         position: absolute;
@@ -27,31 +32,23 @@
         padding: 20px;
       }
 
+      /* Status Bar Styling */
       #statusBar {
         background-color: #ffd900;
         border-radius: 10px;
         margin-top: 15px;
         padding: 20px;
-      }
-      .custom-file-input::-webkit-file-upload-button {
-        background-color: #002c3e;
-        color: white;
-        border-radius: 5px;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
+        font-weight: bold;
+        display: none; /* Initially hidden */
       }
 
-      #fileInfo {
-        width: 100%;
-        height: 30%;
-        border-radius: 10px;
-      }
+      /* Button Styling */
       .btn-primary {
         background-color: #002c3e;
         border-radius: 5px;
         border: none;
       }
+
       .btn-secondary {
         background-color: #f7444e;
         border-radius: 5px;
@@ -62,6 +59,7 @@
   <body>
     <div class="main-body">
       <div class="container">
+        <!-- Mode Switch -->
         <div class="form-group">
           <label for="modeSwitch">Switch to:</label>
           <div class="custom-control custom-switch">
@@ -69,6 +67,7 @@
             <label class="custom-control-label" for="modeSwitch">CSV</label>
           </div>
         </div>
+        <!-- Email Input Form -->
         <form id="emailInputForm" method="post" onsubmit="handleSubmit(event)">
           <div id="emailInputField" class="form-group">
             <label for="emailInput">Email</label>
@@ -79,6 +78,7 @@
               placeholder="email@example.com"
             />
           </div>
+          <!-- CSV Input Field -->
           <div id="csvInputField" class="form-group" style="display: none">
             <label for="csvFileInput">Browse File</label>
             <input type="file" class="form-control-file" id="csvFileInput" accept=".csv" />
@@ -86,8 +86,9 @@
             <label for="selectedFileInfo">Selected File:</label>
             <div id="selectedFileInfo" class="border p-3">No file selected</div>
           </div>
+          <!-- Deliverability Switch -->
           <div id="checkDeliverablilityField" class="form-group">
-            <label for="deliverabilitySwitch">Check deliverability:</label>
+            <label for="deliverabilitySwitch">Check domain server deliverability:</label>
             <div class="custom-control custom-switch">
               <input
                 type="checkbox"
@@ -98,135 +99,170 @@
               <label class="custom-control-label" for="deliverabilitySwitch">Yes</label>
             </div>
           </div>
+          <!-- Existence Switch -->
+          <div id="checkExistanceField" class="form-group">
+            <label for="existanceSwitch">
+              Check existence
+              <span style="color: #f7444e; font-weight: bold; margin-right: 2px">[Very Slow] </span
+              >:
+            </label>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="existanceSwitch" checked />
+              <label class="custom-control-label" for="existanceSwitch">Yes</label>
+            </div>
+          </div>
+          <!-- Submit and Cancel Buttons -->
           <button type="submit" class="btn btn-primary">Validate</button>
           <button type="reset" class="btn btn-secondary">Cancel</button>
-          <div id="statusBar" style="display: none"></div>
+          <!-- Status Bar -->
+          <div id="statusBar"></div>
         </form>
       </div>
     </div>
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-  </body>
-  <!-- scripts -->
-  <script id="toggleValidateButtonIfInputScript">
-    var emailInput = document.getElementById("emailInput");
-    var csvFileInput = document.getElementById("csvFileInput");
-    var validateButton = document.querySelector('button[type="submit"]');
-    var cancelButton = document.querySelector('button[type="reset"]');
+    <!-- JavaScript Scripts -->
+    <script id="toggleValidateButtonIfInputScript">
+      // Toggle Validate Button Based on Input
+      var emailInput = document.getElementById("emailInput");
+      var csvFileInput = document.getElementById("csvFileInput");
+      var validateButton = document.querySelector('button[type="submit"]');
+      var cancelButton = document.querySelector('button[type="reset"]');
 
-    emailInput.addEventListener("input", toggleValidateButton);
-    csvFileInput.addEventListener("change", toggleValidateButton);
-    cancelButton.addEventListener("click", function () {
-      // Delay the disable action to the next event loop after form fields are cleared
-      setTimeout(toggleValidateButton, 0);
-    });
+      emailInput.addEventListener("input", toggleValidateButton);
+      csvFileInput.addEventListener("change", toggleValidateButton);
+      cancelButton.addEventListener("click", function () {
+        // Delay the disable action to the next event loop after form fields are cleared
+        setTimeout(toggleValidateButton, 0);
+      });
 
-    function toggleValidateButton() {
-      var switchState = document.getElementById("modeSwitch").checked;
-      if (switchState) {
-        validateButton.disabled = !csvFileInput.value;
-      } else {
-        validateButton.disabled = !emailInput.value;
-      }
-    }
-
-    // Call the function initially to set the button state
-    toggleValidateButton();
-  </script>
-  <script id="formSubmitHandlerScript">
-    async function handleSubmit(event) {
-      event.preventDefault();
-      let formData = new FormData(event.target);
-      let modeSwitchState = document.getElementById("modeSwitch").checked;
-      let deliverabilitySwitchState = document.getElementById("deliverabilitySwitch").checked;
-
-      if (modeSwitchState) {
-        let csvFileInput = document.getElementById("csvFileInput");
-        if (csvFileInput.files.length > 0) {
-          let file = csvFileInput.files[0];
-          let text = await file.text();
-          let emails = text.split("\r\n");
-          console.log(emails);
-          formData.append("payload_type", "emails");
-          formData.append("emails", emails);
+      function toggleValidateButton() {
+        var switchState = document.getElementById("modeSwitch").checked;
+        if (switchState) {
+          validateButton.disabled = !csvFileInput.value;
+        } else {
+          validateButton.disabled = !emailInput.value;
         }
-      } else {
-        let emailInput = document.getElementById("emailInput");
-        formData.append("payload_type", "email");
-        formData.append("email", emailInput.value);
       }
-      if (deliverabilitySwitchState) {
-        formData.append("checkDeliverability", true);
-      } else {
-        formData.append("checkDeliverability", false);
-      }
-      document.getElementById("statusBar").style.display = "block";
-      document.getElementById("statusBar").textContent = "Processing request, please wait...";
 
-      fetch("/validate-email", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          return response.text();
-        })
-        .then((html) => {
-          document.documentElement.innerHTML = html;
-        })
-        .catch((error) => {
-          // Update the status bar only when an error occurs
-          document.getElementById("statusBar").style.display = "block";
-          document.getElementById("statusBar").textContent = "An error occurred: " + error;
-        });
+      // Call the function initially to set the button state
+      toggleValidateButton();
+    </script>
+    <script id="formSubmitHandlerScript">
+      // Handle Form Submission
+      async function handleSubmit(event) {
+        event.preventDefault();
+        let formData = new FormData(event.target);
+        let modeSwitchState = document.getElementById("modeSwitch").checked;
+        let deliverabilitySwitchState = document.getElementById("deliverabilitySwitch").checked;
+        let existanceSwitchState = document.getElementById("existanceSwitch").checked;
 
-      //   fetch("/validate-email", {
-      //     method: "POST",
-      //     body: formData,
-      //   })
-      //     .then((response) => {
-      //       if (response.ok) {
-      //         window.alert("Form data has been sent to the server");
-      //         event.target.reset();
-      //       } else {
-      //         window.alert("An error occurred while sending the form data to the server");
-      //       }
-      //     })
-      //     .catch((error) => {
-      //       window.alert("An error occurred: " + error);
-      //     });
-    }
-  </script>
-  <script id="modeSwitchScript">
-    var modeSwitch = document.getElementById("modeSwitch");
-    var emailInputField = document.getElementById("emailInputField");
-    var csvInputField = document.getElementById("csvInputField");
-    modeSwitch.addEventListener("change", handleModeSwitchChange, false);
-    function handleModeSwitchChange(e) {
-      if (e.target.checked) {
-        emailInputField.style.display = "none";
-        csvInputField.style.display = "block";
-      } else {
-        emailInputField.style.display = "block";
-        csvInputField.style.display = "none";
+        if (modeSwitchState) {
+          let csvFileInput = document.getElementById("csvFileInput");
+          if (csvFileInput.files.length > 0) {
+            let file = csvFileInput.files[0];
+            let text = await file.text();
+            let emails = text.split("\r\n");
+            formData.append("payload_type", "emails");
+            formData.append("emails", emails);
+
+            // Calculate estimated time remaining
+            var numEmails = emails.length;
+            var minTime = 5;
+            var maxTime = 15;
+            var estimatedMaxTime = numEmails * maxTime;
+            var estimatedMinTime = numEmails * minTime;
+
+            document.getElementById("statusBar").textContent =
+              "ETA: " +
+              secondsToHms(estimatedMaxTime) +
+              "±" +
+              secondsToHms(estimatedMinTime) +
+              ". Processing request, please wait...";
+          }
+        } else {
+          let emailInput = document.getElementById("emailInput");
+          formData.append("payload_type", "email");
+          formData.append("email", emailInput.value);
+        }
+        if (deliverabilitySwitchState) {
+          formData.append("checkDeliverability", true);
+        } else {
+          formData.append("checkDeliverability", false);
+        }
+        if (existanceSwitchState) {
+          formData.append("checkExistance", true);
+        } else {
+          formData.append("checkExistance", false);
+        }
+        document.getElementById("statusBar").style.display = "block";
+
+        fetch("/validate-email", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            return response.text();
+          })
+          .then((html) => {
+            document.documentElement.innerHTML = html;
+          })
+          .catch((error) => {
+            // Update the status bar only when an error occurs
+            document.getElementById("statusBar").style.display = "block";
+            document.getElementById("statusBar").textContent = "An error occurred: " + error;
+          });
       }
-    }
-  </script>
-  <script id="fileInputHandlerScript">
-    var csvFileInput = document.getElementById("csvFileInput");
-    var selectedFileInfo = document.getElementById("selectedFileInfo");
-    csvFileInput.addEventListener("change", handleFileInput, false);
-    function handleFileInput(e) {
-      var file = e.target.files[0];
-      var extension = file.name.split(".").pop().toLowerCase();
-      if (
-        (file.type === "text/csv" || file.type === "application/vnd.ms-excel") &&
-        extension === "csv"
-      ) {
-        selectedFileInfo.textContent = file.name;
-      } else {
-        selectedFileInfo.textContent = "No file selected";
+
+      // Convert seconds to hours, minutes, and seconds format
+      function secondsToHms(d) {
+        d = Number(d);
+        var h = Math.floor(d / 3600);
+        var m = Math.floor((d % 3600) / 60);
+        var s = Math.floor((d % 3600) % 60);
+
+        var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours ") : "";
+        var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes ") : "";
+        var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+        return hDisplay + mDisplay + sDisplay;
       }
-    }
-  </script>
+    </script>
+    <script id="modeSwitchScript">
+      // Handle Mode Switching
+      var modeSwitch = document.getElementById("modeSwitch");
+      var emailInputField = document.getElementById("emailInputField");
+      var csvInputField = document.getElementById("csvInputField");
+      modeSwitch.addEventListener("change", handleModeSwitchChange, false);
+
+      function handleModeSwitchChange(e) {
+        if (e.target.checked) {
+          emailInputField.style.display = "none";
+          csvInputField.style.display = "block";
+        } else {
+          emailInputField.style.display = "block";
+          csvInputField.style.display = "none";
+        }
+      }
+    </script>
+    <script id="fileInputHandlerScript">
+      // Handle File Input
+      var csvFileInput = document.getElementById("csvFileInput");
+      var selectedFileInfo = document.getElementById("selectedFileInfo");
+      csvFileInput.addEventListener("change", handleFileInput, false);
+
+      function handleFileInput(e) {
+        var file = e.target.files[0];
+        var extension = file.name.split(".").pop().toLowerCase();
+        if (
+          (file.type === "text/csv" || file.type === "application/vnd.ms-excel") &&
+          extension === "csv"
+        ) {
+          selectedFileInfo.textContent = file.name;
+        } else {
+          selectedFileInfo.textContent = "No file selected";
+        }
+      }
+    </script>
+  </body>
 </html>

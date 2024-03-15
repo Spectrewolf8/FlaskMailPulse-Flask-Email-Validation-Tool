@@ -5,27 +5,29 @@ import dns.resolver
 
 
 def validate_email(email):
-    # Initialize status dictionary with default values
     status = {
+        "email_tested": email,
         "isValid": False,
-        "status": "",
+        "response_status": "",
         "response_code": 200,
         "smtp_server_message": "None",
     }
 
     # Step 1: Check email format
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        status["status"] = "Invalid email format"
+        status["response_status"] = "Invalid email format"
         return status
 
-    # Extract domain
+    # Step 2: Extract domain and perform MX lookup
     domain = email.split("@")[-1]
-
-    # Step 2: Perform MX lookup
     try:
         mx_records = dns.resolver.resolve(domain, "MX")
-    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.Timeout) as e:
-        status["status"] = str(e)
+    except (
+        dns.resolver.NoAnswer,
+        dns.resolver.NXDOMAIN,
+        dns.resolver.Timeout,
+    ) as e:
+        status["response_status"] = str(e)
         return status
 
     # Step 3: Try SMTP verification
@@ -36,16 +38,16 @@ def validate_email(email):
                 smtp.ehlo()
                 status_code, message = smtp.verify(email)
                 status["response_code"] = status_code
-                if status_code == 250 or status_code == 252:
+                if status_code in {250, 252}:
                     status["isValid"] = True
-                    status["status"] = "Email is valid"
-                    status["smtp_server_message"] = message
+                    status["response_status"] = "Email is valid"
                 elif status_code == 550:
-                    status["status"] = "Recipient address rejected"
-                    status["smtp_server_message"] = message
+                    status["response_status"] = "Recipient address rejected"
                 else:
-                    status["status"] = f"Unexpected SMTP response: {status_code}"
-                    status["smtp_server_message"] = message
+                    status["response_status"] = (
+                        f"Unexpected SMTP response: {status_code}"
+                    )
+                status["smtp_server_message"] = message
         except (
             smtplib.SMTPServerDisconnected,
             smtplib.SMTPConnectError,
@@ -53,7 +55,7 @@ def validate_email(email):
             smtplib.SMTPResponseException,
             smtplib.SMTPException,
         ) as e:
-            status["status"] = str(e)
+            status["response_status"] = str(e)
             return status
 
     # Additional check for email address existence using email address enumeration
@@ -64,7 +66,6 @@ def validate_email(email):
             smtp.connect(host=mx_host, port=25, source_address=source_address)
             smtp.ehlo()
             status_code, message = smtp.mail("")
-            print(email)
             smtp.rcpt(email)
             msg = "\r\n".join(
                 [
@@ -76,27 +77,33 @@ def validate_email(email):
                     "",
                 ]
             )
+
             smtp.data(msg)
             status["response_code"] = status_code
             status["smtp_server_message"] = message
             if status_code == 250:
                 status["isValid"] = True
-                status["status"] = "Email is valid"
+                status["response_status"] = "Email is valid"
             elif status_code == 252:
-                status["status"] = (
+                status["response_status"] = (
                     "Cannot verify recipient existence, but email is deliverable"
                 )
             else:
-                status["status"] = "Recipient address does not exist"
+                status["response_status"] = "Recipient address does not exist"
     except smtplib.SMTPException as e:
-        status["status"] = str(e)
+        if hasattr(e, "smtp_error"):
+            status["response_status"] = e.smtp_error.decode()
+        else:
+            status["response_status"] = str(e)
         match = re.search(r"\b\d+\b", str(e))
         status["response_code"] = int(match.group()) if match else None
+        if status["response_code"] == 503:
+            status["isValid"]=False
 
     return status
 
 
 # Example usage
-email = "salmanta8385@gmail.com"
+email = "salmantariquuuuuuu8385@gmail.com"
 result = validate_email(email)
 print(result)

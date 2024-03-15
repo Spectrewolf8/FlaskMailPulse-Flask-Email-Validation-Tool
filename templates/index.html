@@ -103,7 +103,8 @@
           <div id="checkExistanceField" class="form-group">
             <label for="existanceSwitch">
               Check existence
-              <span style="color: #f7444e; font-weight: bold; margin-right: 2px">[Very Slow] </span
+              <span style="color: #f7444e; font-weight: bold; margin-right: 2px"
+                >[Most reliable, Very Slow] </span
               >:
             </label>
             <div class="custom-control custom-switch">
@@ -179,7 +180,7 @@
               secondsToHms(estimatedMaxTime) +
               "±" +
               secondsToHms(estimatedMinTime) +
-              ". Processing request, please wait...";
+              ".Processing request, please wait...";
           }
         } else {
           let emailInput = document.getElementById("emailInput");
@@ -187,7 +188,6 @@
           formData.append("email", emailInput.value);
 
           // Calculate estimated time remaining
-          var numEmails = emails.length;
           var minTime = 5;
           var maxTime = 15;
 
@@ -196,7 +196,7 @@
             secondsToHms(maxTime) +
             "±" +
             secondsToHms(minTime) +
-            ". Processing request, please wait...";
+            ".Processing request, please wait...";
         }
         if (deliverabilitySwitchState) {
           formData.append("checkDeliverability", true);

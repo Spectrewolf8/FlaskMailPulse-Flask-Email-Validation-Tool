@@ -4,16 +4,19 @@ from typing import Optional
 
 class EmailNotValidError(ValueError):
     """Parent class of all exceptions raised by this module."""
+
     pass
 
 
 class EmailSyntaxError(EmailNotValidError):
     """Exception raised when an email address fails validation because of its form."""
+
     pass
 
 
 class EmailUndeliverableError(EmailNotValidError):
     """Exception raised when an email address fails validation because its domain name does not appear deliverable."""
+
     pass
 
 
@@ -62,7 +65,39 @@ class ValidatedEmail:
     mechanism, from A or AAAA records, the value is the type of DNS record used instead (`A` or `AAAA`)."""
     mx_fallback_type: str
 
+    # Attributes added for Email Existance Validator by spectrewolf8
+    is_valid: bool
+    """
+    This attribute represents the validity of the email. It is set to True if the email is valid, and False otherwise.
+    """
+    is_existant: bool
+    """
+    This attribute represents whether the email exists or not. It is set to True if the email is valid and exists, and False otherwise.
+    """
+    existance_status: dict
+    """
+    This attribute is a dictionary that holds the status of the email validation process. It includes details like:
+
+    - 'isValid': A boolean indicating whether the email is valid or not.
+    - 'response_status': A string describing the response status.
+    - 'response_code': The SMTP response code.
+    - 'smtp_server_message': The message received from the SMTP server.
+    - 'email_tested': The email address that was tested.
+    - 'color_code': The color code for the level of email validity. This is set to 'green' if the email is valid (i.e., 'isValid' is True), and 'red' if the email is not valid (i.e., 'isValid' is False).
+
+    Example:
+    {
+        'isValid': True, 
+        'response_status': 'Email is valid', 
+        'response_code': 250, 
+        'smtp_server_message': b'sender <> OK', 
+        'email_tested': 'email@example.com',
+        'color_code': 'green'  # The email is valid, so the color code is 'green'
+    }
+    """
+
     """Tests use this constructor."""
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -71,6 +106,7 @@ class ValidatedEmail:
         return f"<ValidatedEmail {self.normalized}>"
 
     """For backwards compatibility, support old field names."""
+
     def __getattr__(self, key):
         if key == "original_email":
             return self.original
@@ -80,13 +116,21 @@ class ValidatedEmail:
 
     @property
     def email(self):
-        warnings.warn("ValidatedEmail.email is deprecated and will be removed, use ValidatedEmail.normalized instead", DeprecationWarning)
+        warnings.warn(
+            "ValidatedEmail.email is deprecated and will be removed, use ValidatedEmail.normalized instead",
+            DeprecationWarning,
+        )
         return self.normalized
 
     """For backwards compatibility, some fields are also exposed through a dict-like interface. Note
     that some of the names changed when they became attributes."""
+
     def __getitem__(self, key):
-        warnings.warn("dict-like access to the return value of validate_email is deprecated and may not be supported in the future.", DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            "dict-like access to the return value of validate_email is deprecated and may not be supported in the future.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if key == "email":
             return self.normalized
         if key == "email_ascii":
@@ -106,6 +150,7 @@ class ValidatedEmail:
         raise KeyError()
 
     """Tests use this."""
+
     def __eq__(self, other):
         if not isinstance(other, ValidatedEmail):
             return False
@@ -113,29 +158,46 @@ class ValidatedEmail:
             self.normalized == other.normalized
             and self.local_part == other.local_part
             and self.domain == other.domain
-            and getattr(self, 'ascii_email', None) == getattr(other, 'ascii_email', None)
-            and getattr(self, 'ascii_local_part', None) == getattr(other, 'ascii_local_part', None)
-            and getattr(self, 'ascii_domain', None) == getattr(other, 'ascii_domain', None)
+            and getattr(self, "ascii_email", None)
+            == getattr(other, "ascii_email", None)
+            and getattr(self, "ascii_local_part", None)
+            == getattr(other, "ascii_local_part", None)
+            and getattr(self, "ascii_domain", None)
+            == getattr(other, "ascii_domain", None)
             and self.smtputf8 == other.smtputf8
-            and repr(sorted(self.mx) if getattr(self, 'mx', None) else None)
-            == repr(sorted(other.mx) if getattr(other, 'mx', None) else None)
-            and getattr(self, 'mx_fallback_type', None) == getattr(other, 'mx_fallback_type', None)
+            and repr(sorted(self.mx) if getattr(self, "mx", None) else None)
+            == repr(sorted(other.mx) if getattr(other, "mx", None) else None)
+            and getattr(self, "mx_fallback_type", None)
+            == getattr(other, "mx_fallback_type", None)
         )
 
     """This helps producing the README."""
+
     def as_constructor(self):
-        return "ValidatedEmail(" \
-            + ",".join(f"\n  {key}={repr(getattr(self, key))}"
-                       for key in ('normalized', 'local_part', 'domain',
-                                   'ascii_email', 'ascii_local_part', 'ascii_domain',
-                                   'smtputf8', 'mx', 'mx_fallback_type')
-                       if hasattr(self, key)
-                       ) \
+        return (
+            "ValidatedEmail("
+            + ",".join(
+                f"\n  {key}={repr(getattr(self, key))}"
+                for key in (
+                    "normalized",
+                    "local_part",
+                    "domain",
+                    "ascii_email",
+                    "ascii_local_part",
+                    "ascii_domain",
+                    "smtputf8",
+                    "mx",
+                    "mx_fallback_type",
+                )
+                if hasattr(self, key)
+            )
             + ")"
+        )
 
     """Convenience method for accessing ValidatedEmail as a dict"""
+
     def as_dict(self):
         d = self.__dict__
-        if d.get('domain_address'):
-            d['domain_address'] = repr(d['domain_address'])
+        if d.get("domain_address"):
+            d["domain_address"] = repr(d["domain_address"])
         return d

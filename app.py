@@ -1,8 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, redirect, request, session
 from email_validator import validate_email, EmailNotValidError
 
+# Initialize Flask app
 app = Flask(__name__)
 app.config["DEBUG"] = True
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+# Define template names
+templates = {"home": "index.html", "result_page": "results.html"}
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -13,7 +18,9 @@ def home():
     Returns:
         HTML template for the home page.
     """
-    return render_template("index.html")
+    if request.method == "POST":
+        session["cancel_flag"] = False  # Reset cancel_flag upon form submission
+    return render_template(templates["home"])
 
 
 @app.route("/validate-email", methods=["POST"])
@@ -24,21 +31,23 @@ def validate_emails():
     Returns:
         HTML template displaying validation results.
     """
+    session["cancel_flag"] = False
     if request.method == "POST":
         context = {"verification_results": []}
         payload_type = request.form.get("payload_type")
-
         if payload_type == "emails":
             emails = request.form.get("emails").split(",")
             check_deliverability = request.form.get("checkDeliverability")
             check_existence = request.form.get("checkExistance")
 
             for email in emails:
+                # Check if cancel_flag is set
+                if "cancel_flag" in session and session["cancel_flag"]:
+                    break
                 evaluation_result = evaluate_email(
                     email, check_deliverability, check_existence
                 )
                 context["verification_results"].append(evaluation_result)
-
         elif payload_type == "email":
             email = request.form.get("email")
             check_deliverability = request.form.get("checkDeliverability")
@@ -49,10 +58,20 @@ def validate_emails():
             context["verification_results"].append(evaluation_result)
 
         return render_template(
-            "results.html", verification_results=context["verification_results"]
+            templates["result_page"],
+            verification_results=context["verification_results"],
         )
 
-    return render_template("index.html")
+    return render_template(templates["home"])
+
+
+@app.route("/cancel-request", methods=["GET", "POST"])
+def cancel():
+    """
+    Cancels the email validation process.
+    """
+    session["cancel_flag"] = True
+    return redirect("/")
 
 
 @app.route("/favicon.ico")

@@ -54,6 +54,15 @@
         border-radius: 5px;
         border: none;
       }
+
+      .btn-primary:hover,
+      .btn-secondary:hover {
+        background-color: gray; /* Change this to the color you want on hover */
+      }
+      .btn-primary:disabled,
+      .btn-secondary:disabled {
+        background-color: gray;
+      }
     </style>
   </head>
   <body>
@@ -68,7 +77,12 @@
           </div>
         </div>
         <!-- Email Input Form -->
-        <form id="emailInputForm" method="post" onsubmit="handleSubmit(event)">
+        <form
+          id="emailInputForm"
+          method="post"
+          action="/validate-email"
+          onsubmit="handleSubmit(event)"
+        >
           <div id="emailInputField" class="form-group">
             <label for="emailInput">Email</label>
             <input
@@ -113,10 +127,17 @@
             </div>
           </div>
           <!-- Submit and Cancel Buttons -->
-          <button type="submit" class="btn btn-primary">Validate</button>
-          <button type="reset" class="btn btn-secondary">Cancel</button>
+          <button id="formSubmitButton" type="submit" class="btn btn-primary">Validate</button>
+          <button id="formCancelButton" type="reset" class="btn btn-secondary">Cancel</button>
+
           <!-- Status Bar -->
           <div id="statusBar"></div>
+          <!-- hidden input fields-->
+          <!-- <input type="hidden" name="request_type" value="initiate-request" /> -->
+        </form>
+        <!-- cacel request POST form -->
+        <form id="requestCancellationForm" method="post" action="/cancel-request">
+          <!-- <input type="hidden" name="request_type" value="cancel-request" /> -->
         </form>
       </div>
     </div>
@@ -128,14 +149,27 @@
       // Toggle Validate Button Based on Input
       var emailInput = document.getElementById("emailInput");
       var csvFileInput = document.getElementById("csvFileInput");
-      var validateButton = document.querySelector('button[type="submit"]');
-      var cancelButton = document.querySelector('button[type="reset"]');
+      var validateButton = document.getElementById("formSubmitButton");
+      var cancelButton = document.getElementById("formCancelButton");
+
+      // Initially disable the Cancel button
+      cancelButton.disabled = true;
 
       emailInput.addEventListener("input", toggleValidateButton);
       csvFileInput.addEventListener("change", toggleValidateButton);
+
+      // Event listener for form submission
+      document.getElementById("emailInputForm").addEventListener("submit", function () {
+        // Disable the Validate button and enable the Cancel button after form submission
+        validateButton.disabled = true;
+        cancelButton.disabled = false;
+      });
+
+      // Event listener for Cancel button click
       cancelButton.addEventListener("click", function () {
-        // Delay the disable action to the next event loop after form fields are cleared
-        setTimeout(toggleValidateButton, 0);
+        // Enable the Validate button and disable the Cancel button after cancellation
+        validateButton.disabled = false;
+        cancelButton.disabled = true;
       });
 
       function toggleValidateButton() {
@@ -154,7 +188,6 @@
       // Handle Form Submission
       async function handleSubmit(event) {
         event.preventDefault();
-        let formData = new FormData(event.target);
         let modeSwitchState = document.getElementById("modeSwitch").checked;
         let deliverabilitySwitchState = document.getElementById("deliverabilitySwitch").checked;
         let existanceSwitchState = document.getElementById("existanceSwitch").checked;
@@ -165,69 +198,68 @@
             let file = csvFileInput.files[0];
             let text = await file.text();
             let emails = text.split("\r\n");
-            formData.append("payload_type", "emails");
-            formData.append("emails", emails);
 
-            // Calculate estimated time remaining
-            var numEmails = emails.length;
-            var minTime = 5;
-            var maxTime = 15;
-            var estimatedMaxTime = numEmails * maxTime;
-            var estimatedMinTime = numEmails * minTime;
+            // Add emails to hidden input field
+            addHiddenInput("emails", emails.join(","));
+            addHiddenInput("payload_type", "emails");
 
-            document.getElementById("statusBar").textContent =
-              "ETA: " +
-              secondsToHms(estimatedMaxTime) +
-              "±" +
-              secondsToHms(estimatedMinTime) +
-              ".Processing request, please wait...";
+            // Update estimated time
+            updateEstimatedTime(emails.length);
           }
         } else {
           let emailInput = document.getElementById("emailInput");
-          formData.append("payload_type", "email");
-          formData.append("email", emailInput.value);
 
-          // Calculate estimated time remaining
-          var minTime = 5;
-          var maxTime = 15;
+          // Add email to hidden input field
+          addHiddenInput("email", emailInput.value);
+          addHiddenInput("payload_type", "email");
 
-          document.getElementById("statusBar").textContent =
-            "ETA: " +
-            secondsToHms(maxTime) +
-            "±" +
-            secondsToHms(minTime) +
-            ".Processing request, please wait...";
+          // Update estimated time
+          updateEstimatedTime(1);
         }
+
         if (deliverabilitySwitchState) {
-          formData.append("checkDeliverability", true);
+          addHiddenInput("checkDeliverability", "true");
         } else {
-          formData.append("checkDeliverability", false);
+          addHiddenInput("checkDeliverability", "false");
         }
+
         if (existanceSwitchState) {
-          formData.append("checkExistance", true);
+          addHiddenInput("checkExistance", "true");
         } else {
-          formData.append("checkExistance", false);
+          addHiddenInput("checkExistance", "false");
         }
+
         document.getElementById("statusBar").style.display = "block";
 
-        fetch("/validate-email", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => {
-            return response.text();
-          })
-          .then((html) => {
-            document.documentElement.innerHTML = html;
-          })
-          .catch((error) => {
-            // Update the status bar only when an error occurs
-            document.getElementById("statusBar").style.display = "block";
-            document.getElementById("statusBar").textContent = "An error occurred: " + error;
-          });
+        // Submit the form
+        event.target.submit();
+
+        // Disable the Validate button after the POST request has been made
+        validateButton.disabled = true;
+      }
+      // Function to add a hidden input to the form
+      function addHiddenInput(name, value) {
+        let input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        document.getElementById("emailInputForm").appendChild(input);
       }
 
-      // Convert seconds to hours, minutes, and seconds format
+      // Function to update estimated time
+      function updateEstimatedTime(email_count) {
+        var minTime = 5;
+        var maxTime = 15;
+        email_count = Number(email_count);
+        document.getElementById("statusBar").textContent =
+          "ETA: " +
+          secondsToHms(maxTime * email_count) +
+          "±" +
+          secondsToHms(minTime * email_count) +
+          ". Processing request, please wait...";
+      }
+
+      // Function to convert seconds to hours, minutes, and seconds format
       function secondsToHms(d) {
         d = Number(d);
         var h = Math.floor(d / 3600);
@@ -239,6 +271,54 @@
         var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
         return hDisplay + mDisplay + sDisplay;
       }
+    </script>
+    <script id="cancellationRequestHandlerScript">
+      document.getElementById("formCancelButton").addEventListener("click", function (event) {
+        // Prevent the default action
+        event.preventDefault();
+
+        // Submit the requestCancellationForm
+        document.getElementById("requestCancellationForm").submit();
+      });
+    </script>
+    <script id="validateButtonHandlerScript">
+      // Handle Validate Button
+      var validateButton = document.querySelector('button[type="submit"]');
+      var cancelButton = document.querySelector('button[type="reset"]');
+      var emailInput = document.getElementById("emailInput");
+      var csvFileInput = document.getElementById("csvFileInput");
+
+      // Initially disable the Cancel button
+      cancelButton.disabled = true;
+
+      // Event listeners for input changes
+      emailInput.addEventListener("input", toggleValidateButton);
+      csvFileInput.addEventListener("change", toggleValidateButton);
+
+      // Event listener for form submission
+      document.getElementById("emailInputForm").addEventListener("submit", function () {
+        // Enable the Cancel button after form submission
+        cancelButton.disabled = false;
+      });
+
+      // Event listener for Cancel button click
+      cancelButton.addEventListener("click", function () {
+        // Enable the Validate button and disable the Cancel button after cancellation
+        validateButton.disabled = false;
+        cancelButton.disabled = true;
+      });
+
+      function toggleValidateButton() {
+        var switchState = document.getElementById("modeSwitch").checked;
+        if (switchState) {
+          validateButton.disabled = !csvFileInput.value;
+        } else {
+          validateButton.disabled = !emailInput.value;
+        }
+      }
+
+      // Call the function initially to set the button state
+      toggleValidateButton();
     </script>
     <script id="modeSwitchScript">
       // Handle Mode Switching

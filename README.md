@@ -59,7 +59,7 @@ Contributions are welcome! To contribute:
 3. Make your changes on your branch.
 4. Submit a pull request from your branch to this repository.
 
-Your pull request will be reviewed, and a decision will be made whether to merge your changes.
+Your pull request will be reviewed, your changes will be merged if significant.
 
 ## License
 

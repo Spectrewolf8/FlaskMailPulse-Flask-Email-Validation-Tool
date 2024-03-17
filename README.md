@@ -11,8 +11,6 @@ FlaskMailPulse is a robust Python tool for validating email addresses with corre
 
 ## Setting Up the Git Project
 
-## Setting Up the Git Project
-
 To set up the Alive Email Validator project on your local machine, follow these steps:
 
 1. **Clone the Repository**: First, clone the repository to your local machine using the following command:
@@ -47,7 +45,11 @@ python app.py
 
 ## Usage
 
-images
+[1]
+![image](https://github.com/Spectrewolf8/FlaskMailPulse-Flask-Email-Validation-Tool/assets/69973760/dfa77d71-956f-4484-95bf-ac3547d6a8eb)
+[2]
+![image](https://github.com/Spectrewolf8/FlaskMailPulse-Flask-Email-Validation-Tool/assets/69973760/dd3e3d0e-5c31-4355-a51e-76d1885a24a7)
+
 
 ## Contributing
 
@@ -72,3 +74,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For any questions, issues, or suggestions, please open an issue on the GitHub repository.
+
+## Todo
+Some features like user identification and background serverless functions need to be added. Email existence verification logic is flawed as of now. If you'd like to contribute to the project, that's be highly appreciated.
+

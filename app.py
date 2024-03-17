@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request
 from email_validator import validate_email, EmailNotValidError
 
 # Initialize Flask app
@@ -18,8 +18,6 @@ def home():
     Returns:
         HTML template for the home page.
     """
-    if request.method == "POST":
-        session["cancel_flag"] = False  # Reset cancel_flag upon form submission
     return render_template(templates["home"])
 
 
@@ -31,7 +29,7 @@ def validate_emails():
     Returns:
         HTML template displaying validation results.
     """
-    session["cancel_flag"] = False
+    
     if request.method == "POST":
         context = {"verification_results": []}
         payload_type = request.form.get("payload_type")
@@ -41,9 +39,6 @@ def validate_emails():
             check_existence = request.form.get("checkExistance")
 
             for email in emails:
-                # Check if cancel_flag is set
-                if "cancel_flag" in session and session["cancel_flag"]:
-                    break
                 evaluation_result = evaluate_email(
                     email, check_deliverability, check_existence
                 )
@@ -70,7 +65,6 @@ def cancel():
     """
     Cancels the email validation process.
     """
-    session["cancel_flag"] = True
     return redirect("/")
 
 
@@ -129,4 +123,13 @@ def evaluate_email(email, check_deliverability, check_existence):
 
 
 if __name__ == "__main__":
-    app.run()
+    import os
+
+    host = os.getenv(
+        "HOST"
+    )  # Default to '0.0.0.0' if HOST environment variable is not set
+    port = int(
+        os.getenv("PORT", 5000)
+    )  # Default to 5000 if PORT environment variable is not set
+
+    app.run(host=host, port=port)

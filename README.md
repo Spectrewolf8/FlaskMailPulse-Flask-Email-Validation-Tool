@@ -50,7 +50,6 @@ python app.py
 [2]
 ![image](https://github.com/Spectrewolf8/FlaskMailPulse-Flask-Email-Validation-Tool/assets/69973760/dd3e3d0e-5c31-4355-a51e-76d1885a24a7)
 
-
 ## Contributing
 
 Contributions are welcome! To contribute:
@@ -76,5 +75,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 For any questions, issues, or suggestions, please open an issue on the GitHub repository.
 
 ## Todo
-Some features like user identification and background serverless functions need to be added. Email existence verification logic is flawed as of now. If you'd like to contribute to the project, that's be highly appreciated.
 
+Some features like user identification and background serverless functions need to be added. Email existence verification logic is flawed as of now. If you'd like to contribute to the project, that's be highly appreciated. The Project is NOT vercel compatible yet.
+
+## Demo
+
+The [app](https://python-email-validator.vercel.app/) is hosted on vercel.

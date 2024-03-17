@@ -7,6 +7,7 @@ name = "pypi"
 dnspython = "*"
 idna = "*"
 flask = "*"
+gunicorn = "*"
 
 [dev-packages]
 

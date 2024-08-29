@@ -29,7 +29,7 @@ def validate_emails():
     Returns:
         HTML template displaying validation results.
     """
-    
+
     if request.method == "POST":
         context = {"verification_results": []}
         payload_type = request.form.get("payload_type")

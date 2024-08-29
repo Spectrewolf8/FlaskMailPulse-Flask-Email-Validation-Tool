@@ -8,6 +8,7 @@ dnspython = "*"
 idna = "*"
 flask = "*"
 gunicorn = "*"
+requests = {extras = ["socks"], version = "*"}
 
 [dev-packages]
 

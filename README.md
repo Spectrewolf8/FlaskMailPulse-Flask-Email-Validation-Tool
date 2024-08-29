@@ -59,7 +59,7 @@ Contributions are welcome! To contribute:
 3. Make your changes on your branch.
 4. Submit a pull request from your branch to this repository.
 
-Your pull request will be reviewed, and a decision will be made whether to merge your changes.
+Your pull request will be reviewed, your changes will be merged if significant.
 
 ## License
 
@@ -76,7 +76,13 @@ For any questions, issues, or suggestions, please open an issue on the GitHub re
 
 ## Todo
 
-Some features like user identification and background serverless functions need to be added. Email existence verification logic is flawed as of now. If you'd like to contribute to the project, that's be highly appreciated. The Project is NOT vercel compatible yet.
+Some features like user identification and background serverless functions need to be added. Email existence verification logic is flawed as of now. If you'd like to contribute to the project, that's be highly appreciated. The Project is NOT vercel compatible yet because serverless function times out[1]. 
+
+[1]
+![image](https://github.com/Spectrewolf8/FlaskMailPulse-Flask-Email-Validation-Tool/assets/69973760/e7322680-012a-4ab6-8dcd-6450791f12f6)
+
+
+Feel free to report other issues that aren't listed yet.
 
 ## Demo
 
